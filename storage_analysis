@@ -1,0 +1,65 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Nov 23 11:14:50 2022
+
+@author: atrin
+"""
+
+import os
+import time
+
+def fileType2(dic, ext):   
+    try:
+        dic[ext] +=1
+    except:
+        dic[ext]=1   
+    return dic
+    
+def recursiveWalk(startpath):
+    qttQlt = {}
+    for root, dirs, files in os.walk(startpath):
+        
+        for subdirs in dirs:
+            recursiveWalk(root+subdirs)
+        
+        for file in files:
+            file_extension = os.path.splitext(root+file)[1][1:]
+            qttQlt = fileType2(qttQlt,file_extension)
+            
+    return dict(sorted(qttQlt.items(), key=lambda x: x[1],reverse=True))
+
+
+
+def readableData(dic,n=-1,time=-1):
+    
+    count = 0
+
+    total = sum(qttQlt.values())
+    length = len(qttQlt)
+    
+    print(f"\n\ntotal: {total:,} file(s)")
+    print(f"number of extensions: {length:,}")
+    if time >=0:
+        print(f"execution time: {time} s\n")
+    print("------LIST-------\n")
+    for key,value in dic.items():
+        if key == "":
+            key = "folder"
+        print(f'{key.ljust(25,".")} {value:,}'.format())
+        count+=1
+        if count >=n and n>=0:
+            break
+    
+    
+start_time = time.time()
+qttQlt = recursiveWalk(".")
+end_time = time.time()
+
+
+readableData(qttQlt,n=40,time = end_time-start_time)
+
+
+    
+    
+    
+    
