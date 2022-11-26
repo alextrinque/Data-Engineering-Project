@@ -7,12 +7,18 @@ Created on Wed Nov 23 11:14:50 2022
 
 import os
 import time
+import matplotlib.pyplot as plt
 
-def dictManager(dic, ext, value=1):   
+size_dict ={}
+def dictManager(dic, ext, size=0):
+    if ext=="" :
+        ext="folder"
     try:
-        dic[ext] +=value
+        size_dict[ext] += size
+        dic[ext] += 1
     except:
-        dic[ext]=value   
+        dic[ext]=1
+        size_dict[ext]=size   
     return dic
     
 def recursiveWalk(startpath):
@@ -25,22 +31,28 @@ def recursiveWalk(startpath):
         
         for file in files:
             file_extension = os.path.splitext(root+file)[1][1:]
-            qttQlt = dictManager(qttQlt,file_extension)
-            
-            
+
+            path = os.path.join(root, file)
+            size = os.stat(path).st_size 
+            qttQlt = dictManager(qttQlt,file_extension,size)
+        
     return dict(sorted(qttQlt.items(), key=lambda x: x[1],reverse=True))
 
 
 
 def readableData(dic,n=-1,time=-1):
-    
+    print("Starting to display...")
     count = 0
 
     total = sum(qttQlt.values())
     length = len(qttQlt)
+    total_size = sum(list(size_dict.values()))
+    
     
     print(f"\n\ntotal: {total:,} file(s)")
     print(f"number of extensions: {length:,}")
+    print(f"size dict: {total_size} bytes")
+    print(f"size dict: {total_size*0.000001} MB")
     if time >=0:
         print(f"execution time: {time} s\n")
     print("------LIST-------\n")
@@ -51,16 +63,39 @@ def readableData(dic,n=-1,time=-1):
         count+=1
         if count >=n and n>=0:
             break
-    
-    
+
+def data_visualisation(data,n=4):
+    x,y=list(data.keys()),list(data.values())
+    fig, ax = plt.subplots()
+    ax.bar(x[:n],y[:n],color="green",width = 0.1)
+    title ="The "+str(n)+" first files extentions" 
+    plt.title(title)
+
+    # Pie chart, where the slices will be ordered and plotted counter-clockwise:
+    #labels = tuple(list(size_dict.keys()))
+    labels = [str(i)+"( "+str(j*0.000001)[:5]+" MB)" for i,j in size_dict.items()]
+    sizes = list(size_dict.values())
+    sizes = [i*100/sum(sizes) for i in sizes]
+
+    fig1, ax1 = plt.subplots()
+    ax1.pie(sizes[:n], labels=labels[:n],
+            shadow=False, startangle=90)
+    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    ax1.legend(title = "Files type:")
+    title1 ="The "+str(n)+" first files extentions sizes"
+    plt.title(title1)
+    plt.show()
+
+
 start_time = time.time()
 qttQlt = recursiveWalk(".")
 end_time = time.time()
 
 
-readableData(qttQlt,n=40,time = end_time-start_time)
 
+readableData(qttQlt,n=10,time = end_time-start_time)
 
+data_visualisation(qttQlt,10)
     
     
     
