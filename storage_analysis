@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Mon Nov 28 18:01:39 2022
+
+@author: atrin
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Wed Nov 23 11:14:50 2022
 
 @author: atrin
@@ -9,21 +16,19 @@ import os
 import time
 import matplotlib.pyplot as plt
 
-size_dict ={}
-def dictManager(dic, ext, size=0):
+
+def dictManager(dic, ext, value=1):
     if ext=="" :
         ext="folder"
     try:
-        size_dict[ext] += size
-        dic[ext] += 1
+        dic[ext] += value
     except:
-        dic[ext]=1
-        size_dict[ext]=size   
+        dic[ext]=value
     return dic
     
 def recursiveWalk(startpath):
     qttQlt = {}
-  
+    size_dict ={}
     for root, dirs, files in os.walk(startpath):
         
         for subdirs in dirs:
@@ -34,9 +39,10 @@ def recursiveWalk(startpath):
 
             path = os.path.join(root, file)
             size = os.stat(path).st_size 
-            qttQlt = dictManager(qttQlt,file_extension,size)
+            qttQlt = dictManager(qttQlt,file_extension)
+            size_dict = dictManager(size_dict,file_extension,size)
         
-    return dict(sorted(qttQlt.items(), key=lambda x: x[1],reverse=True))
+    return dict(sorted(qttQlt.items(), key=lambda x: x[1],reverse=True)),dict(sorted(size_dict.items(), key=lambda x: x[1],reverse=True))
 
 
 
@@ -64,7 +70,7 @@ def readableData(dic,n=-1,time=-1):
         if count >=n and n>=0:
             break
 
-def data_visualisation(data,n=4):
+def data_visualisation(data,size_dict,n=4):
     x,y=list(data.keys()),list(data.values())
     fig, ax = plt.subplots()
     ax.bar(x[:n],y[:n],color="green",width = 0.1)
@@ -88,15 +94,14 @@ def data_visualisation(data,n=4):
 
 
 start_time = time.time()
-qttQlt = recursiveWalk(".")
+qttQlt,size_dict = recursiveWalk("../../..")
 end_time = time.time()
 
 
 
 readableData(qttQlt,n=10,time = end_time-start_time)
 
-data_visualisation(qttQlt,10)
-    
+data_visualisation(qttQlt, size_dict,10)
     
     
     
