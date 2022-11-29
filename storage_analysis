@@ -80,23 +80,32 @@ def readableData(dic,dic2,n=-1,time=-1):
         if count >=n and n>=0:
             break
 
-def data_visualisation(data,size_dict,n=4):
-    x,y=list(data.keys()),list(data.values())
+def data_visualisation(qtt_dict,size_dict,n=4):
+    """
+        Parameters:
+        *qtt_dict: dictionnary with file extention and number of occurence
+        *size_dict: dictionnary with file extention and the related sizes
+        *n: number of extentions to show
+
+        Plot a bar chart and pie chart of the selected extentions
+    """
+
+    #bar diagramme of files extentions count
+    x,y=list(qtt_dict.keys()),list(qtt_dict.values())
     fig, ax = plt.subplots()
     ax.bar(x[:n],y[:n],color="green",width = 0.1)
     title ="The "+str(n)+" first files extentions" 
     plt.title(title)
 
-    # Pie chart, where the slices will be ordered and plotted counter-clockwise:
-    #labels = tuple(list(size_dict.keys()))
-    labels = [str(i)+"( "+str(j*0.000001)[:5]+" MB)" for i,j in size_dict.items()]
+    # Pie chart of files sizes
+    labels = [str(i)+"( "+str(round(j/1024/1024,3))[:5]+" MB)" for i,j in size_dict.items()]
     sizes = list(size_dict.values())
     sizes = [i*100/sum(sizes) for i in sizes]
 
     fig1, ax1 = plt.subplots()
     ax1.pie(sizes[:n], labels=labels[:n],
             shadow=False, startangle=90)
-    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    ax1.axis('equal')
     ax1.legend(title = "Files type:")
     title1 ="The "+str(n)+" first files extentions sizes"
     plt.title(title1)
