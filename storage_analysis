@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Mon Nov 28 18:01:39 2022
+
+@author: atrin
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Wed Nov 23 11:14:50 2022
 
 @author: atrin
@@ -17,43 +24,49 @@ def dictManager(dic, ext, value=1):
         dic[ext]=value
     return dic
     
-def recursiveWalk(startpath):
+def recursiveWalk(startpath,qtt_dict,size_dict):
     
-    qttQlt = {}
-    size_dict ={}
+    
     for root, dirs, files in os.walk(startpath):
         
-        for subdirs in dirs:
-            recursiveWalk(root+subdirs)
+        for subdir in dirs:
+            recursiveWalk(root+subdir,qtt_dict,size_dict)
         
         for file in files:
             file_extension = os.path.splitext(root+file)[1][1:]
-
+            qtt_dict = dictManager(qtt_dict,file_extension)
+            
+            
             path = os.path.join(root, file)
             size = os.stat(path).st_size 
-            
-            qttQlt = dictManager(qttQlt,file_extension)
             size_dict = dictManager(size_dict,file_extension,size)
     
     return [
-        dict(sorted(qttQlt.items(), key=lambda x: x[1],reverse=True)),
+        dict(sorted(qtt_dict.items(), key=lambda x: x[1],reverse=True)),
         dict(sorted(size_dict.items(), key=lambda x: x[1],reverse=True))
         ]
 
 
+def getDataFrom(startpath):
+    qtt_dict = {}
+    size_dict = {}
+    
+    print("processing...")
+    
+    return recursiveWalk(startpath, qtt_dict, size_dict)
 
 def readableData(dic,dic2,n=-1,time=-1):
     count = 0
 
-    total = sum(qttQlt.values())
-    length = len(qttQlt)
+    total = sum(qtt_dict.values())
+    length = len(qtt_dict)
     total_size = sum(list(size_dict.values()))
     
     
     print(f"\n\ntotal: {total:,} file(s)")
     print(f"number of extensions: {length:,}")
     print(f"size dict: {total_size:,} bytes")
-    print(f"size dict: {total_size*0.000001:,} MB")
+    print(f"size dict: {round(total_size/1024/1024,3):,} Mb")
     if time >=0:
         print(f"execution time: {round(time,3)} s\n")
     if n > 0:
@@ -62,7 +75,7 @@ def readableData(dic,dic2,n=-1,time=-1):
         print("------LIST------- (all)\n")
     for key,value in dic2.items():
         size = dic2[key]
-        print(f'{key.ljust(25,".")} {dic[key]:,} ({round(size*0.000001):,} MB)'.format())
+        print(f'{key.ljust(25,".")} {dic[key]:,} ({round(size/1024/1024,3):,} Mb)'.format())
         count+=1
         if count >=n and n>=0:
             break
@@ -91,11 +104,12 @@ def data_visualisation(data,size_dict,n=4):
 
 
 
-print("processing...")
+path = str(input("input folder:\n-->"))
+
 start_time = time.time()
-qttQlt,size_dict = recursiveWalk("../..")
+qtt_dict,size_dict = getDataFrom(path)
 end_time = time.time()
 
-readableData(qttQlt,size_dict,n=10,time = end_time-start_time)
+readableData(qtt_dict,size_dict,n=10,time = end_time-start_time)
 
-data_visualisation(size_dict, size_dict,10)   
+data_visualisation(size_dict, size_dict,10)
