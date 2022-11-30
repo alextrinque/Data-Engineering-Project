@@ -24,7 +24,7 @@ def dictManager(dic, ext, value=1):
         dic[ext]=value
     return dic
     
-def recursiveWalk(startpath,qtt_dict,size_dict):
+def recursiveWalk(startpath,qtt_dict={}, size_dict={}):
     
     
     for root, dirs, files in os.walk(startpath):
@@ -47,13 +47,6 @@ def recursiveWalk(startpath,qtt_dict,size_dict):
         ]
 
 
-def getDataFrom(startpath):
-    qtt_dict = {}
-    size_dict = {}
-    
-    print("processing...")
-    
-    return recursiveWalk(startpath, qtt_dict, size_dict)
 
 def readableData(dic,dic2,n=-1,time=-1):
     count = 0
@@ -115,8 +108,9 @@ def data_visualisation(qtt_dict,size_dict,n=4):
 
 path = str(input("input folder:\n-->"))
 
+print("processing...")
 start_time = time.time()
-qtt_dict,size_dict = getDataFrom(path)
+qtt_dict,size_dict = recursiveWalk(path)
 end_time = time.time()
 
 readableData(qtt_dict,size_dict,n=10,time = end_time-start_time)
